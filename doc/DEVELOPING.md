@@ -17,6 +17,12 @@ Current implementation status:
 
 - Node.js 24.11+
 - pnpm 9+
+- Rust and Cargo for the native Runner source build. On Windows, install the
+  Visual Studio C++ Build Tools as well.
+
+The repository's `.npmrc` selects Node.js 24.11.0 for pnpm commands; pnpm
+downloads that runtime automatically. After installing pnpm or Rust, restart
+your terminal so the new commands are on `PATH`.
 
 ## Dependency Lockfile Policy
 
