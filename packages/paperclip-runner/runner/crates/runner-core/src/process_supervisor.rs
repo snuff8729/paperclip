@@ -445,6 +445,33 @@ pub struct VerifiedProcessLaunch {
     inherit_runtime_executable: bool,
 }
 
+#[cfg(all(test, not(any(target_os = "linux", target_os = "macos"))))]
+mod unsupported_platform_tests {
+    use super::*;
+
+    #[test]
+    fn verified_stdio_launch_rejects_unsupported_platforms() {
+        let display_path = std::env::current_exe().unwrap();
+        let launch = VerifiedProcessLaunch::new(
+            VerifiedProcessArtifact {
+                file: Arc::new(File::open(&display_path).unwrap()),
+                display_path,
+            },
+            vec![VerifiedProcessArgument::Literal("--list".to_owned())],
+        );
+        match launch.spawn_stdio(&std::collections::BTreeMap::new()) {
+            Err(error) => assert!(error
+                .to_string()
+                .contains("supported only on Linux and macOS")),
+            Ok(mut child) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!("verified stdio launch must reject unsupported platforms");
+            }
+        }
+    }
+}
+
 impl VerifiedProcessLaunch {
     pub fn new(program: VerifiedProcessArtifact, args: Vec<VerifiedProcessArgument>) -> Self {
         Self {
@@ -458,16 +485,26 @@ impl VerifiedProcessLaunch {
         &self,
         environment: &std::collections::BTreeMap<String, String>,
     ) -> Result<Child, LocalRunnerError> {
-        let inherited = self.inherited_command()?;
-        Command::new(&inherited.program)
-            .args(&inherited.args)
-            .env_clear()
-            .envs(environment)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
-            .spawn()
-            .map_err(|_| LocalRunnerError::invalid("failed to spawn verified stdio MCP server"))
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        {
+            let inherited = self.inherited_command()?;
+            Command::new(&inherited.program)
+                .args(&inherited.args)
+                .env_clear()
+                .envs(environment)
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::inherit())
+                .spawn()
+                .map_err(|_| LocalRunnerError::invalid("failed to spawn verified stdio MCP server"))
+        }
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+        {
+            let _ = environment;
+            Err(LocalRunnerError::invalid(
+                "verified process launch is supported only on Linux and macOS",
+            ))
+        }
     }
 
     pub fn with_inherited_runtime_executable(mut self) -> Self {
