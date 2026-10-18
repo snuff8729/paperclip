@@ -491,6 +491,10 @@ pnpm db:migrate       # Apply migrations
 
 See [doc/DEVELOPING.md](doc/DEVELOPING.md) for the full development guide.
 
+This personal fork keeps custom changes on `main` and merges official updates
+through dedicated sync branches. See [the fork workflow](doc/FORK-WORKFLOW.md)
+for branch rules, update steps, and the customization inventory.
+
 <br/>
 
 ## Roadmap

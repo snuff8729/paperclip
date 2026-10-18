@@ -2,6 +2,34 @@
 
 Guidance for human and AI contributors working in this repository.
 
+## Personal fork workflow
+
+This checkout maintains a customized Paperclip fork. Read
+[`doc/FORK-WORKFLOW.md`](doc/FORK-WORKFLOW.md) before changing branches,
+remotes, or integrating upstream changes.
+
+- `origin` is `snuff8729/paperclip`; `upstream` is `paperclipai/paperclip`.
+  Verify remote URLs before pushing. Default pushes and pull requests target
+  the personal fork, with `main` as the integration branch.
+- Create purpose-specific `feature/*`, `fix/*`, or `docs/*` branches from
+  `main`. Keep unrelated changes in separate commits. Integrate through a
+  reviewed pull request; do not commit feature work directly to `main`.
+- Bring official updates through `sync/upstream-YYYY-MM-DD` branches by
+  merging `upstream/master`. Preserve published `main` history: do not rebase
+  or force-push it. Upstream contribution branches are separate and start
+  from `upstream/master`; do not send the entire customized fork upstream.
+- Record each customization's purpose, affected areas, and verification in
+  its pull request. Keep the current customization inventory in
+  `doc/FORK-WORKFLOW.md` up to date when a customization is added or retired.
+- Back up instance data before running an updated version that can migrate
+  the database. Keep credentials, instance data, and build outputs out of Git.
+- The initial fork bootstrap may use user-authorized local merge commits.
+  Preserve those commits and the recorded limits of their verification.
+
+These fork-specific integration rules take precedence over skill defaults
+that target the official repository's `master` branch. All source, testing,
+and pull request requirements below still apply.
+
 ## 1. Purpose
 
 Paperclip is a control plane for AI-agent companies.
